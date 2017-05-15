@@ -1,5 +1,6 @@
 package com.marielm.flickersearch.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -7,11 +8,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.marielm.flickersearch.R;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static com.marielm.flickersearch.activities.SearchDialog.KEY_TAG;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,6 +51,17 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(new Intent(MainActivity.this, SearchDialog.class), REQUEST_SEARCH_TAG);
             }
         });
+    }
+
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode != Activity.RESULT_OK) return;
+
+        if (requestCode == REQUEST_SEARCH_TAG && data.hasExtra(KEY_TAG)) {
+            String tag = data.getStringExtra(KEY_TAG);
+            Toast.makeText(MainActivity.this, "tag: " + tag, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showEmpty() {
