@@ -1,5 +1,6 @@
 package com.marielm.flickersearch.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,6 +14,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final int REQUEST_SEARCH_TAG = 1;
 
     @BindView(R.id.recycler_view) RecyclerView recyclerView;
     @BindView(R.id.empty_view) View emptyView;
@@ -33,13 +36,17 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
         recyclerView.setAdapter(adapter);
 
-
         if (adapter.getItemCount() == 0) {
             showEmpty();
         } else {
             showResults();
         }
 
+        emptyViewSearch.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View view) {
+                startActivityForResult(new Intent(MainActivity.this, SearchDialog.class), REQUEST_SEARCH_TAG);
+            }
+        });
     }
 
     private void showEmpty() {
@@ -50,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
     private void showResults() {
         recyclerView.setVisibility(View.VISIBLE);
         emptyView.setVisibility(View.GONE);
-
     }
 
     private class SearchAdapter extends RecyclerView.Adapter<SearchViewHolder> {
