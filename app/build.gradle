@@ -34,6 +34,8 @@ dependencies {
 
     compile 'com.squareup.dagger:dagger:1.2.5'
     compile 'com.jakewharton:butterknife:8.5.1'
+    compile 'com.squareup.retrofit2:retrofit:2.3.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.3.0'
 
     testCompile 'junit:junit:4.12'
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {

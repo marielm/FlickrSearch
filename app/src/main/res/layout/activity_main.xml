@@ -8,6 +8,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"/>
 
     <LinearLayout
         android:id="@+id/empty_view"
@@ -16,12 +21,13 @@
         android:gravity="center"
         android:layout_height="match_parent"
         android:orientation="vertical">
-
         <TextView
-            style="@style/Base.TextAppearance.AppCompat.Subhead"
+            android:id="@+id/empty_view_text"
+            style="@style/Base.TextAppearance.AppCompat.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="no items, try a search"/>
+            android:layout_marginBottom="32dp"
+            />
 
         <Button
             android:id="@+id/empty_search_button"

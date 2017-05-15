@@ -4,12 +4,12 @@ import android.app.Application;
 
 import dagger.ObjectGraph;
 
-public class FlickerSearchApplication extends Application {
+public class FlickrSearchApplication extends Application {
 
-    static FlickerSearchApplication context;
+    static FlickrSearchApplication context;
     static ObjectGraph graph;
 
-    public FlickerSearchApplication() {
+    public FlickrSearchApplication() {
         context = this;
     }
 
