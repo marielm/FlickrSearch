@@ -14,8 +14,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.marielm.flickersearch.FlickrSearchApplication;
 import com.marielm.flickersearch.R;
 import com.marielm.flickersearch.network.PhotoSearchService;
@@ -23,6 +27,7 @@ import com.marielm.flickersearch.network.SearchResult;
 import com.marielm.flickersearch.network.TagsResponse;
 import com.marielm.flickersearch.util.ImageUrlUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -34,11 +39,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.marielm.flickersearch.activities.SearchDialog.KEY_FILTER;
 import static com.marielm.flickersearch.activities.SearchDialog.KEY_TAG;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_SEARCH_TAG = 1;
+    private static final int REQUEST_SEARCH_FILTER = 2;
 
     @BindView(R.id.progress_bar) View progressBar;
     @BindView(R.id.recycler_view) RecyclerView recyclerView;
@@ -74,9 +81,8 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.search_fab)
     public void onSearchClick(View view) {
-        startActivityForResult(new Intent(MainActivity.this, SearchDialog.class), REQUEST_SEARCH_TAG);
+        startActivityForResult(SearchDialog.create(MainActivity.this, KEY_TAG), REQUEST_SEARCH_TAG);
     }
-
 
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -86,7 +92,14 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_SEARCH_TAG && data.hasExtra(KEY_TAG)) {
             String tag = data.getStringExtra(KEY_TAG);
             getSearchResults(tag);
+        } else if (requestCode == REQUEST_SEARCH_FILTER && data.hasExtra(KEY_FILTER)) {
+            String filterText = data.getStringExtra(KEY_FILTER);
+            handleFilterResults(filterText);
         }
+    }
+
+    private void handleFilterResults(String filterText) {
+        adapter.filterResults(filterText);
     }
 
     @Override public boolean onCreateOptionsMenu(Menu menu) {
@@ -94,6 +107,16 @@ public class MainActivity extends AppCompatActivity {
         menu.findItem(R.id.filter).setVisible(showFilter);
 
         return true;
+    }
+
+    @Override public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.filter:
+                startActivityForResult(SearchDialog.create(MainActivity.this, KEY_FILTER), REQUEST_SEARCH_FILTER);
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void getSearchResults(String tag) {
@@ -145,9 +168,29 @@ public class MainActivity extends AppCompatActivity {
 
     private class SearchAdapter extends RecyclerView.Adapter<SearchViewHolder> {
         private List<SearchResult> data;
+        private List<SearchResult> total;
 
         public void setData(List<SearchResult> data) {
             this.data = data;
+            this.total = data;
+        }
+
+        public void filterResults(final String text) {
+
+            Iterable<SearchResult> filtered = Iterables.filter(total, new Predicate<SearchResult>() {
+                @Override public boolean apply(SearchResult item) {
+                    return item.title.contains(text);
+                }
+            });
+
+            ArrayList<SearchResult> results = Lists.newArrayList(filtered);
+
+            if (results.size() > 0) {
+                data = results;
+                notifyDataSetChanged();
+            } else {
+                Toast.makeText(MainActivity.this, "No results on filter", Toast.LENGTH_SHORT).show();
+            }
         }
 
         @Override
