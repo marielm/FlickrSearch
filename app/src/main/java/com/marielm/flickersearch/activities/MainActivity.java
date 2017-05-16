@@ -7,6 +7,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -45,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     @Inject PhotoSearchService service;
 
     private SearchAdapter adapter;
+    private boolean showFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,21 +89,37 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        menu.findItem(R.id.filter).setVisible(showFilter);
+
+        return true;
+    }
+
     private void getSearchResults(String tag) {
         showProgress();
         service.getTaggedPhotos(tag).enqueue(new Callback<TagsResponse>() {
             @Override
             public void onResponse(Call<TagsResponse> call, Response<TagsResponse> response) {
                 if (response.isSuccessful()) {
+
+                    showFilter = true;
+                    invalidateOptionsMenu();
+
                     adapter.setData(response.body().photos.photo);
                     showResults();
                 } else {
+                    showFilter = false;
+                    invalidateOptionsMenu();
+
                     showEmpty("Error, give it another try!");
                 }
             }
 
             @Override public void onFailure(Call<TagsResponse> call, Throwable t) {
                 showEmpty("Error, give it another try!");
+                showFilter = false;
+                invalidateOptionsMenu();
             }
         });
     }
