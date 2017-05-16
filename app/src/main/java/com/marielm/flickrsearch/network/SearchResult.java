@@ -1,4 +1,4 @@
-package com.marielm.flickersearch.network;
+package com.marielm.flickrsearch.network;
 
 public class SearchResult {
     public String id;
@@ -6,5 +6,4 @@ public class SearchResult {
     public String server;
     public int farm;
     public String title;
-
 }

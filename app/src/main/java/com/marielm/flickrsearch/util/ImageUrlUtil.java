@@ -1,4 +1,4 @@
-package com.marielm.flickersearch.util;
+package com.marielm.flickrsearch.util;
 
 public class ImageUrlUtil {
 

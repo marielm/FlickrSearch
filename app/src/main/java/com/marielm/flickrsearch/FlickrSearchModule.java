@@ -1,8 +1,12 @@
-package com.marielm.flickersearch;
+package com.marielm.flickrsearch;
 
 
-import com.marielm.flickersearch.activities.MainActivity;
-import com.marielm.flickersearch.network.PhotoSearchService;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
+import com.marielm.flickrsearch.activities.MainActivity;
+import com.marielm.flickrsearch.activities.SearchDialog;
+import com.marielm.flickrsearch.network.PhotoSearchService;
 
 import javax.inject.Singleton;
 
@@ -13,7 +17,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 @Module(
         injects = {
-                MainActivity.class
+                MainActivity.class,
+                SearchDialog.class
         },
         library = true
 )
@@ -31,6 +36,10 @@ public class FlickrSearchModule {
     @Provides
     public PhotoSearchService providePhotoSearchService(Retrofit retrofit) {
         return retrofit.create(PhotoSearchService.class);
+    }
+
+    @Provides SharedPreferences provideSharedPreferences() {
+        return PreferenceManager.getDefaultSharedPreferences(FlickrSearchApplication.context);
     }
 
 }

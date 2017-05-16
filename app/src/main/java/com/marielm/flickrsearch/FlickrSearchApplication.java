@@ -1,4 +1,4 @@
-package com.marielm.flickersearch;
+package com.marielm.flickrsearch;
 
 import android.app.Application;
 
@@ -7,7 +7,7 @@ import dagger.ObjectGraph;
 public class FlickrSearchApplication extends Application {
 
     static FlickrSearchApplication context;
-    static ObjectGraph graph;
+    private  static ObjectGraph graph;
 
     public FlickrSearchApplication() {
         context = this;

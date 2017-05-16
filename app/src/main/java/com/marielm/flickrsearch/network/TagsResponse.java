@@ -1,4 +1,4 @@
-package com.marielm.flickersearch.network;
+package com.marielm.flickrsearch.network;
 
 import java.util.List;
 

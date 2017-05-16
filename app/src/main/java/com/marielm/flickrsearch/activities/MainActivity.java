@@ -1,14 +1,16 @@
-package com.marielm.flickersearch.activities;
+package com.marielm.flickrsearch.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.BaseTransientBottomBar;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,18 +19,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.marielm.flickersearch.FlickrSearchApplication;
-import com.marielm.flickersearch.R;
-import com.marielm.flickersearch.network.PhotoSearchService;
-import com.marielm.flickersearch.network.SearchResult;
-import com.marielm.flickersearch.network.TagsResponse;
-import com.marielm.flickersearch.util.ImageUrlUtil;
+import com.marielm.flickrsearch.FlickrSearchApplication;
+import com.marielm.flickrsearch.R;
+import com.marielm.flickrsearch.network.PhotoSearchService;
+import com.marielm.flickrsearch.network.SearchResult;
+import com.marielm.flickrsearch.network.TagsResponse;
+import com.marielm.flickrsearch.util.ImageUrlUtil;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -39,8 +40,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.marielm.flickersearch.activities.SearchDialog.KEY_FILTER;
-import static com.marielm.flickersearch.activities.SearchDialog.KEY_TAG;
+import static com.marielm.flickrsearch.activities.SearchDialog.KEY_FILTER;
+import static com.marielm.flickrsearch.activities.SearchDialog.KEY_FILTER_ENTRY;
+import static com.marielm.flickrsearch.activities.SearchDialog.KEY_TAG;
+import static com.marielm.flickrsearch.activities.SearchDialog.KEY_TAG_ENTRY;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -53,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.empty_view_text) TextView emptyMessage;
 
     @Inject PhotoSearchService service;
+    @Inject SharedPreferences sharedPreferences;
 
     private SearchAdapter adapter;
     private boolean showFilter;
@@ -91,9 +95,14 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == REQUEST_SEARCH_TAG && data.hasExtra(KEY_TAG)) {
             String tag = data.getStringExtra(KEY_TAG);
+
+            sharedPreferences.edit().putString(KEY_TAG_ENTRY, tag).apply();
+            sharedPreferences.edit().remove(KEY_FILTER_ENTRY).apply();
             getSearchResults(tag);
         } else if (requestCode == REQUEST_SEARCH_FILTER && data.hasExtra(KEY_FILTER)) {
             String filterText = data.getStringExtra(KEY_FILTER);
+
+            sharedPreferences.edit().putString(KEY_FILTER_ENTRY, filterText).apply();
             handleFilterResults(filterText);
         }
     }
@@ -176,14 +185,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public void filterResults(final String text) {
+            final List<String> words = Lists.newArrayList(text.split("\\s"));
 
-            Iterable<SearchResult> filtered = Iterables.filter(total, new Predicate<SearchResult>() {
-                @Override public boolean apply(SearchResult item) {
-                    return item.title.contains(text);
+            Set<SearchResult> filtered = new HashSet<>();
+
+            for (String word : words) {
+                for (SearchResult item : total) {
+                    String title = item.title.toLowerCase();
+                    if (title.contains(word)) filtered.add(item);
                 }
-            });
+            }
 
-            ArrayList<SearchResult> results = Lists.newArrayList(filtered);
+            List<SearchResult> results = Lists.newArrayList(filtered);
 
             if (results.size() > 0) {
                 data = results;
@@ -198,13 +211,21 @@ public class MainActivity extends AppCompatActivity {
             return new SearchViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_result, parent, false));
         }
 
-        @Override public void onBindViewHolder(SearchViewHolder holder, int position) {
-            SearchResult item = data.get(position);
+        @Override public void onBindViewHolder(final SearchViewHolder holder, int position) {
+            final SearchResult item = data.get(position);
 
             Glide.with(MainActivity.this)
                     .load(ImageUrlUtil.getUrl(item.farm, item.server, item.id, item.secret))
                     .crossFade()
+                    .centerCrop()
                     .into(holder.photo);
+
+
+            holder.photo.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View view) {
+                    Snackbar.make(holder.photo, item.title, BaseTransientBottomBar.LENGTH_SHORT).show();
+                }
+            });
         }
 
         @Override public int getItemCount() {

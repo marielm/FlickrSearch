@@ -1,4 +1,4 @@
-package com.marielm.flickersearch;
+package com.marielm.flickrsearch;
 
 import org.junit.Test;
 

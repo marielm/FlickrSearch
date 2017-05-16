@@ -1,4 +1,4 @@
-package com.marielm.flickersearch.network;
+package com.marielm.flickrsearch.network;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
