@@ -9,8 +9,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.marielm.flickersearch.FlickrSearchApplication;
 import com.marielm.flickersearch.R;
 import com.marielm.flickersearch.network.PhotoSearchService;
@@ -135,7 +137,11 @@ public class MainActivity extends AppCompatActivity {
 
         @Override public void onBindViewHolder(SearchViewHolder holder, int position) {
             SearchResult item = data.get(position);
-            holder.title.setText(ImageUrlUtil.getUrl(item.farm, item.server, item.id, item.secret));
+
+            Glide.with(MainActivity.this)
+                    .load(ImageUrlUtil.getUrl(item.farm, item.server, item.id, item.secret))
+                    .crossFade()
+                    .into(holder.photo);
         }
 
         @Override public int getItemCount() {
@@ -146,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     class SearchViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.title) TextView title;
+        @BindView(R.id.image) ImageView photo;
 
         public SearchViewHolder(View itemView) {
             super(itemView);
