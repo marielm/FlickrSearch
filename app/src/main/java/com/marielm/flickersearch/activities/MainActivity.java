@@ -10,13 +10,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.marielm.flickersearch.FlickrSearchApplication;
 import com.marielm.flickersearch.R;
 import com.marielm.flickersearch.network.PhotoSearchService;
 import com.marielm.flickersearch.network.SearchResult;
 import com.marielm.flickersearch.network.TagsResponse;
+import com.marielm.flickersearch.util.ImageUrlUtil;
 
 import java.util.List;
 
@@ -24,6 +24,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -38,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.recycler_view) RecyclerView recyclerView;
     @BindView(R.id.empty_view) View emptyView;
     @BindView(R.id.empty_view_text) TextView emptyMessage;
-    @BindView(R.id.empty_search_button) View emptyViewSearch;
 
     @Inject PhotoSearchService service;
 
@@ -64,12 +64,13 @@ public class MainActivity extends AppCompatActivity {
             showResults();
         }
 
-        emptyViewSearch.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) {
-                startActivityForResult(new Intent(MainActivity.this, SearchDialog.class), REQUEST_SEARCH_TAG);
-            }
-        });
     }
+
+    @OnClick(R.id.search_fab)
+    public void onSearchClick(View view) {
+        startActivityForResult(new Intent(MainActivity.this, SearchDialog.class), REQUEST_SEARCH_TAG);
+    }
+
 
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -102,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showProgress() {
-        progressBar.setVisibility(View.VISIBLE);;
+        progressBar.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.GONE);
         emptyView.setVisibility(View.GONE);
     }
@@ -134,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override public void onBindViewHolder(SearchViewHolder holder, int position) {
             SearchResult item = data.get(position);
-            holder.title.setText(item.title);
+            holder.title.setText(ImageUrlUtil.getUrl(item.farm, item.server, item.id, item.secret));
         }
 
         @Override public int getItemCount() {
